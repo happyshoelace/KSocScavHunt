@@ -1,15 +1,23 @@
 import './App.css'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function Home() {
-    const team = { name: "Team Name", points: 0 }
-
+    const [team, setTeam] = useState({ name: "Team Name", points: 0 })
     const [openDropdown, setOpenDropdown] = useState(false)
 
+    useEffect(() => {
+        // Get user data from localStorage
+        const userData = localStorage.getItem('user')
+        if (userData) {
+            const user = JSON.parse(userData)
+            setTeam({ name: user.teamName, points: user.points })
+        }
+    }, [])
+
     const handleDropdown = (dropdown) => {
-      setOpenDropdown(prev => prev === dropdown ? null : dropdown)
-  }
+        setOpenDropdown(prev => prev === dropdown ? null : dropdown)
+    }
     return (
       <>
         <h1>Hi {team.name}!</h1>
@@ -25,9 +33,9 @@ function Home() {
             <li><Link to="/uploadSubmission" state={{challenge:'pigeon', points:250}}>Find a pigeon eating something</Link></li>
             <li><Link to="/uploadSubmission" state={{challenge:'rubbish', points:250}}>Pick up some rubbish off the floor</Link></li>
             <li><Link to="/uploadSubmission" state={{challenge:'dance', points:250}}>Make up a dance with your whole team</Link></li>
-            <li><Link to="/uploadSubmission" state={{challenge:'library', points:250}}>Learn the name of someone who works in the library</Link></li>
-            <li><Link to="/uploadSubmission" state={{challenge:'XXXX', points:250}}>XXXX</Link></li>
-            <li><Link to="/uploadSubmission" state={{challenge:'XXXX', points:250}}>XXXX</Link></li>
+            <li><Link to="/uploadSubmission" state={{challenge:'library', points:250}}>Learn the name of someone who works for UTS Security</Link></li>
+            <li><Link to="/uploadSubmission" state={{challenge:'art', points:250}}>Make an art piece out of things from nature</Link></li>
+            <li><Link to="/uploadSubmission" state={{challenge:'disguse', points:250}}>Create a disguse</Link></li>
           </ul>
         </div>  
 </div>
@@ -42,8 +50,8 @@ function Home() {
             <li><Link to="/uploadSubmission" state={{challenge:'highfive', points:400}}>High-five a stranger</Link></li>
             <li><Link to="/uploadSubmission" state={{challenge:'favouriteSong', points:400}}>Ask a stranger what their favourite song is</Link></li>
             <li><Link to="/uploadSubmission" state={{challenge:'titanic', points:400}}>Recreate Titanic on a balcony</Link></li>
-            <li><Link to="/uploadSubmission" state={{challenge:'XXXX', points:400}}>XXXX</Link></li>
-            <li><Link to="/uploadSubmission" state={{challenge:'XXXX', points:400}}>XXXX</Link></li>
+            <li><Link to="/uploadSubmission" state={{challenge:'campusAnimal', points:400}}>Take a photo of an animal on campus</Link></li>
+            <li><Link to="/uploadSubmission" state={{challenge:'swiftie', points:400}}>Loudly sing a Taylor Swift song in a public area</Link></li>
           </ul>
         </div>  
 </div>
@@ -56,8 +64,8 @@ function Home() {
         >
           <ul>
             <li><Link to="/uploadSubmission" state={{challenge:'freeItem', points:500}}>Get something for free... legally  (Best Item wins the points)</Link></li>
-            <li><Link to="/uploadSubmission" state={{challenge:'XXXX', points:500}}>XXXX</Link></li>
-            <li><Link to="/uploadSubmission" state={{challenge:'XXXX', points:500}}>XXXX</Link></li>
+            <li><Link to="/uploadSubmission" state={{challenge:'propose', points:500}}>Propose to a stranger</Link></li>
+            <li><Link to="/uploadSubmission" state={{challenge:'exec', points:500}}>Take a picture of an exec without them noticing</Link></li>
           </ul>
         </div>  
 </div>

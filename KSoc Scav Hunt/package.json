@@ -2,16 +2,25 @@
   "name": "ksoc-scav-hunt",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "type": "commonjs",
+  "proxy": "http://localhost:3000",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "npm "
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.1.0",
+    "express": "^5.1.0",
+    "multer": "^2.0.1",
+    "pg": "^8.16.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-dropzone": "^14.3.8",
+    "react-hook-form": "^7.60.0",
     "react-router-dom": "^7.6.2"
   },
   "devDependencies": {
