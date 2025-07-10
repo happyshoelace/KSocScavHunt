@@ -87,7 +87,9 @@ app.post('/upload', upload.single('file'), async (req, res) => {
                 originalname: req.file.originalname,
                 path: req.file.path,
                 size: req.file.size
-            }
+            },
+            challenge: challenge,
+            team_id: team_id
         });
 
     } catch (err) {
@@ -117,15 +119,58 @@ app.post('/approve', async (req, res) => {
     
 })
 
-app.get('/fetchSubs', async (req, res) => {
+app.post('/updateTeamPoints', async (req, res) => {
+    if (!req.body || !req.body.teamID || !req.body.points) {
+        return res.status(400).json({error: "teamID and points are required"});
+    }
+
+    const { teamID, points } = req.body;
     try {
-        const result = await pool.query('SELECT * FROM uploads WHERE approved = False');
+        const result = await pool.query('UPDATE teams SET teampoints = teampoints + $1 WHERE teamid = $2', [points, teamID]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({error: "Team not found"});
+        }
+        res.status(200).json({message: "Team points updated successfully"});
+    } catch (err) {
+        console.error("Error updating team points:", err);
+        res.status(500).json({error: "Database error while updating team points"});
+    }
+});
+
+app.get('/getChallengePoints', async (req, res) => {
+    if (!req.query.challenge) {
+        return res.status(400).json({error: "Challenge is required"});
+    }
+
+    const challenge = req.query.challenge;
+
+    try {
+        const result = await pool.query('SELECT pointValue FROM challenges WHERE challenge = $1', [challenge]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({error: "Challenge not found"});
+        }
+
+        res.status(200).json({points: result.rows[0].pointvalue});
+    } catch (err) {
+        console.error("Error fetching challenge points:", err);
+        res.status(500).json({error: "Database error while fetching challenge points"});
+    }
+});
+
+app.get('/fetchSubs', async (req, res) => {
+
+    if (!req.query.fetchType) {
+        return res.status(400).json({error: "fetchType query parameter is required"});
+    }
+
+    const fetchType = req.query.fetchType;
+    try {
+        const result = await pool.query('SELECT * FROM uploads WHERE approved = $1', [fetchType] );
 
         if (result.rows.length === 0){
             return res.status(200).json({message: "No new images", rows: []});
         }
 
-        console.log("Fetched submissions:", result.rows);
         return res.status(200).json({message: "New images", rows: result.rows});
     }
     catch (err) {
@@ -133,6 +178,45 @@ app.get('/fetchSubs', async (req, res) => {
         res.status(500).json({error:"Internal Server Error"});
     }
 })
+
+app.get('/fetchChallengeDescription', async (req, res) => {
+    const challenge = req.query.challenge;
+    try {
+        const result = await pool.query('SELECT fullDescription FROM challenges WHERE challenge = $1', [challenge]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Challenge not found' });
+        }
+        const description = result.rows[0].fulldescription;
+        res.status(200).json({ description });
+    }
+    catch (err) {
+        console.error("Error fetching challenge description:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+})
+
+app.get('/fetchTeamFromId', async (req, res) => {
+    const teamId = req.query.teamId;
+
+    if (!teamId) {
+        return res.status(400).json({ error: 'teamId is required' });
+    }
+
+    try {
+        const result = await pool.query('SELECT teamname, teampoints FROM teams WHERE teamid = $1', [teamId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Team not found' });
+        }
+
+        const teamName = result.rows[0].teamname;
+        const teamPoints = result.rows[0].teampoints;
+        res.status(200).json({ teamName, teamPoints });
+    } catch (err) {
+        console.error('Error fetching team:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 app.post('/login', async (req, res) => {
     console.log('Request body:', req.body);

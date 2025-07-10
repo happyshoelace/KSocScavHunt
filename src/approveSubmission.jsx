@@ -15,7 +15,7 @@ function ApproveSubmission() {
     const fetchSubmissions = async () => {
     try {
         setLoading(true);
-        const response = await fetch('http://localhost:3000/fetchSubs', {
+        const response = await fetch('http://localhost:3000/fetchSubs?fetchType=false', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -49,10 +49,10 @@ function ApproveSubmission() {
     }
     };
 
-    const approveSubmission = async (filepath) => {
+    const approveSubmission = async (filepath, teamID, challenge) => {
         try {
             setSubmissions(prev => prev.filter(path => path !== filepath));
-            const response = await fetch("http://localhost:3000/approve", {
+            const imageResponse = await fetch(`http://localhost:3000/approve`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,11 +60,40 @@ function ApproveSubmission() {
                 body: JSON.stringify({ path: filepath })
             });
 
-            if (!response.ok) {
-                setSubmissions(prev => [...prev, filepath]);
-                throw new Error(`Failed to approve submission ${response.status}`);
+            if (!imageResponse.ok) {
+                throw new Error(`Failed to approve submission ${imageResponse.status}`);
+            }
+
+            const challengeResponse = await fetch(`http://localhost:3000/getChallengePoints?challenge=${challenge}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!challengeResponse.ok) {
+                throw new Error(`Failed to get challenge points ${challengeResponse.status}`);
+            }
+
+            console.log("Challenge response:", challengeResponse);
+            const challengeData = await challengeResponse.json();
+            const points = challengeData.points;
+
+            console.log(`Approving submission for team ${teamID} with points: ${points}`);
+
+            const updatePointsResponse = await fetch(`http://localhost:3000/updateTeamPoints`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ teamID: teamID, points: points })
+            });
+
+            if (!updatePointsResponse.ok) {
+                throw new Error(`Failed to update team points ${updatePointsResponse.status}`);
             }
         } catch (err) {
+            setSubmissions(prev => [...prev, filepath]);
             console.error("Error approving submission:", err);
         } finally{
             fetchSubmissions();
@@ -125,7 +154,7 @@ function ApproveSubmission() {
                                 />
                             )}
                                 <div className="submission-actions">
-                                <button onClick={() => approveSubmission(row.filepath)} className="approve-btn">Approve</button>
+                                <button onClick={() => approveSubmission(row.filepath, row.teamid, row.challenge)} className="approve-btn">Approve</button>
                                 </div>
                         </div>
                     ))}
