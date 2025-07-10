@@ -3,6 +3,7 @@ import Home from './home.jsx'
 import Index from './index.jsx'
 import Login from './login.jsx'
 import UploadSubmission from './uploadsubmission.jsx'
+import ApproveSubmission from './approveSubmission.jsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 function app() {
@@ -15,9 +16,10 @@ function app() {
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/uploadSubmission" element={<UploadSubmission />} />
+        <Route path="/approveSubmission" element={<ApproveSubmission />} />
       </Routes>
     </BrowserRouter>
   )
 }
 
-export default app
+export default app;

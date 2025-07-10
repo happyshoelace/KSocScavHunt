@@ -37,6 +37,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
 
 // Debug middleware to log all requests
 app.use((req, res, next) => {
@@ -92,6 +93,44 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     } catch (err) {
         console.error('Error saving upload:', err);
         res.status(500).json({ error: 'Database error while saving upload' });
+    }
+})
+
+app.post('/approve', async (req, res) => {
+    if (!req.body || !req.body.path) {
+        return res.status(400).json({error: "No body in request"})
+    }
+
+    const filepath = req.body.path;
+    try{
+        const result = await pool.query('UPDATE uploads SET approved = true WHERE filepath = $1', [filepath]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({error: "No upload found with the given path"});
+        }
+        console.log("Approved Image at path:", filepath);
+
+        res.status(200).json({message: "Upload Updated"});
+    } catch (err) {
+        console.error("Error updating challenge upload:", err);
+        res.status(500).json({error: "Database error while updating upload"});
+    }
+    
+})
+
+app.get('/fetchSubs', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM uploads WHERE approved = False');
+
+        if (result.rows.length === 0){
+            return res.status(200).json({message: "No new images", rows: []});
+        }
+
+        console.log("Fetched submissions:", result.rows);
+        return res.status(200).json({message: "New images", rows: result.rows});
+    }
+    catch (err) {
+        console.error("Error during fetch:", err);
+        res.status(500).json({error:"Internal Server Error"});
     }
 })
 
