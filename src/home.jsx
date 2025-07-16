@@ -122,9 +122,10 @@ function Home() {
     if (team.name !== 'admin') {
       return (
         <>
+         <Link to="/login"><button className='LogOut'>Logout</button></Link>
           <h1>Hi {team.name}!</h1>
           <h2>You have {team.points} points!</h2>
-          <Link to="/login"><button>Logout</button></Link>
+         
           <div className="dropdown">
           <button onClick={() => handleDropdown('easy')} className="dropbtn">Easy<span className='points'>250pts</span></button>
           <div

@@ -49,6 +49,8 @@ function Login() {
 
     return (
         <>
+            <h1>Login</h1>
+            <p>Welcome to the Scavenger Hunt! Bianca has probably given you a login. If it's not working, please check with them.</p>
             <form onSubmit={handleSubmit}>
                 <label>Team Username</label>
                 <input 
@@ -64,11 +66,12 @@ function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-                {error && <div style={{color: 'red'}}>{error}</div>}
+                {error && <div className="error">{error}</div>}
                 <button type="submit" disabled={loading}>
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
             </form>
+            <img className="detective-Cataoki-img" src="src/assets/detective-Cataoki.png" alt="Detective Cataoki" />
         </>
     )
 }
